@@ -1,4 +1,4 @@
-import { useState, } from 'react';
+import { useState,useCallback } from 'react';
 const data  = [
     "Apple",
     "Banana",
@@ -107,7 +107,7 @@ function DebouncedInput() {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<string[]>([]);
 
-  const filterItems = (text:string) => {
+  const filterItems =useCallback((text:string) => {
     // Simulate an API call or expensive filtering operation
     setTimeout(() => {
       const filtered = data.filter(item =>
@@ -115,12 +115,26 @@ function DebouncedInput() {
       );
       setResults(filtered);
     }, 500);
-  };
+  },[]);
+
+   // Debounce delay of 300ms
+  const debouncedFilter = useCallback(
+    (text:string) => {
+      let timerId;
+      return function(text) {
+        clearTimeout(timerId);
+        timerId = setTimeout(() => {
+          filterItems(text);
+        }, 300);
+      }(text);
+    },
+    [filterItems]
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = (event:any) => {
     setSearchTerm(event.target.value);
-    filterItems(event.target.value);
+    debouncedFilter(event.target.value);
   };
 
   return (
@@ -135,11 +149,13 @@ function DebouncedInput() {
         onChange={handleChange}
       />
    <ul>
+    <div className='result-section'>
   {results && results.length > 0 ? (
     results.map((result) => <li key={result}>{result}</li>)
   ) : (
     <li>No results</li>
   )}
+  </div>
 </ul>
     </div>
   );

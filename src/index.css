@@ -12,3 +12,8 @@ main{
 .main-input{
   margin: 100px;
 }
+.result-section{
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  grid-template-rows: repeat(3,1fr);
+}
